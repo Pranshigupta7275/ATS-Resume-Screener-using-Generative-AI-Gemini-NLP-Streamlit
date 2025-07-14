@@ -70,6 +70,7 @@ def input_pdf_setup(uploaded_file):
     returns it as a list of parts the Gemini model can consume.
     """
     try:
+        import fitz  # PyMuPDF
         doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
         pdf_parts = []
 
@@ -82,7 +83,6 @@ def input_pdf_setup(uploaded_file):
     except Exception as e:
         logger.error(f"Error processing PDF: {e}")
         raise
-
 
 # ------------------- Gemini API Response -------------------
 
