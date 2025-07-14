@@ -3,7 +3,7 @@ import logging
 from dotenv import load_dotenv
 import streamlit as st
 from PIL import Image
-import pdf2image
+import fitz
 import google.generativeai as genai
 import io
 import base64
@@ -63,24 +63,26 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # ------------------- PDF → Image Conversion -------------------
-
 @st.cache_data
 def input_pdf_setup(uploaded_file):
+    """
+    Extracts raw text from each page of an uploaded PDF and
+    returns it as a list of parts the Gemini model can consume.
+    """
     try:
-        images = pdf2image.convert_from_bytes(uploaded_file.read())
+        doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
         pdf_parts = []
-        for img in images:
-            img_byte_arr = io.BytesIO()
-            img.save(img_byte_arr, format='JPEG')
-            encoded_img = base64.b64encode(img_byte_arr.getvalue()).decode()
-            pdf_parts.append({
-                "mime_type": "image/jpeg",
-                "data": encoded_img
-            })
+
+        for page in doc:
+            page_text = page.get_text("text")
+            pdf_parts.append({"text": page_text})
+
         return pdf_parts
+
     except Exception as e:
         logger.error(f"Error processing PDF: {e}")
         raise
+
 
 # ------------------- Gemini API Response -------------------
 
