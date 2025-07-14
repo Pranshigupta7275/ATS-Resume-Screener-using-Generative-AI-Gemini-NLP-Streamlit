@@ -88,16 +88,16 @@ def input_pdf_setup(uploaded_file):
 
 def get_genai_response(input_text, pdf_content, prompt):
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        parts = [{"text": input_text}] if input_text else []
+        model = genai.GenerativeModel("gemini-1.5-flash")
 
-        for image_data in pdf_content:
-            parts.append({
-                "inline_data": {
-                    "mime_type": image_data["mime_type"],
-                    "data": image_data["data"]
-                }
-            })
+        parts = []
+        if input_text:
+            parts.append({"text": input_text})
+
+        # NEW – append each page’s text
+        for page_part in pdf_content:
+            parts.append(page_part)           
+
         if prompt:
             parts.append({"text": prompt})
 
