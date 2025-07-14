@@ -1,5 +1,5 @@
 streamlit
 google-generativeai
 python-dotenv
-pymupdf
+pymupdf==1.26.3
 sqlalchemy
